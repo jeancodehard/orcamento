@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Orçamento!</title>
+  </head>
+  <style>
+    input{
+     width: 50%;   
+    }
+  </style>
+  <body class="flex items-center flex-col bg-slate-800 text-white gap-2 px-2">
+    <h1 class="text-3xl font-bold mb-8 mt-4">Calcular Orçamento!</h1>
+    Area da peça (em cm)
+    <div class="flex gap-2 mb-4">
+      <input
+        id="area1placa"
+        class="bg-slate-500 rounded-md outline-none px-2 py-1"
+        type="number"
+        value="30"
+      />x
+      <input
+        id="area2placa"
+        class="bg-slate-500 rounded-md outline-none px-2 py-1"
+        type="number"
+        value="30"
+      />
+    </div>
+    <div id="paredes" class="flex flex-col items-center gap-2">
+      
+      </div>
+    </div>
+    <button class="mt-4 border py-1 px-8 rounded-full" onclick="adicionarParede()">
+      <span class="font-bold">+</span> Adicionar Parede
+    </button>
+    <div id="janelas" class="flex flex-col items-center gap-2 mt-4">
+        <p>Nenhuma janela ou porta adicionada</p>
+    </div>
+    <button class="mt-4 border py-1 px-8 rounded-full" onclick="adicionarJanela()">
+        <span class="font-bold">+</span> Adicionar porta/janela
+      </button>
+    <button
+      class="mt-6 bg-green-600 py-2 px-8 rounded-full"
+      onclick="calculaPlacas()"
+    >
+      Calcular
+    </button>
+
+    <div class="mt-4" id="resultado"></div>
+
+    Valor da peça
+    <input
+        id="valorpc"
+        class="bg-slate-500 rounded-md outline-none px-2 py-1"
+        type="number"
+        value="4.50"
+      />
+      Valor m² instalado
+      <input
+        id="valormt"
+        class="bg-slate-500 rounded-md outline-none px-2 py-1"
+        type="number"
+        value="90"
+      />
+    <script>
+        let contadorParedes = 1
+        let contadorJanelas = 0
+
+        const divParedes = document.querySelector("#paredes");
+        const divJanelas = document.querySelector("#janelas");
+        adicionarParede();
+    
+        function adicionarParede(){
+            const codigoHTML = `
+          <p class="text-center mb-2">Area da parede (em m)</p>
+          <div class="flex gap-2">
+          <input
+          min="0"
+              id="base-${contadorParedes}"
+              class="bg-slate-500 rounded-md outline-none px-2 py-1"
+              type="number"
+          />x
+          <input
+          min="0"
+              id="altura-${contadorParedes}"
+              class="bg-slate-500 rounded-md outline-none px-2 py-1"
+              type="number"
+          />
+          `
+          const novaParede = document.createElement("div")
+          novaParede.innerHTML = codigoHTML
+          divParedes.appendChild(novaParede)
+          contadorParedes++
+        }
+
+        function adicionarJanela(){
+            if(contadorJanelas === 0){
+                divJanelas.innerHTML = ''
+            }
+            contadorJanelas++
+            const codigoHTML = `
+          <p class="text-center mb-2">Area da janela/porta (em m)</p>
+          <div class="flex gap-2">
+          <input
+          min="0"
+              id="basej-${contadorJanelas}"
+              class="bg-slate-500 rounded-md outline-none px-2 py-1"
+              type="number"
+          />x
+          <input
+          min="0"
+              id="alturaj-${contadorJanelas}"
+              class="bg-slate-500 rounded-md outline-none px-2 py-1"
+              type="number"
+          />
+          `
+          const novaJanela = document.createElement("div")
+          novaJanela.innerHTML = codigoHTML
+          divJanelas.appendChild(novaJanela)
+         
+        }
+
+
+        function calculaPlacas() {
+            let areaTotalParedes = 0
+            let areaTotalJanelas = 0
+            let areaTotalGeral = 0
+
+            const area1placa = parseFloat(
+                document.querySelector("#area1placa").value
+            );
+            const area2placa = parseFloat(
+                document.querySelector("#area2placa").value
+            );
+            const valorPc = parseFloat(
+                document.querySelector("#valorpc").value
+            );
+            const valorMt = parseFloat(
+                document.querySelector("#valormt").value
+            );
+       
+            const resultado = document.querySelector("#resultado");
+    
+      
+            for(let i=1; i<=contadorParedes-1;i++){
+                const base = parseFloat(document.querySelector(`#base-${i}`).value)
+                const altura = parseFloat(document.querySelector(`#altura-${i}`).value)
+                const area = base*altura
+                areaTotalParedes = areaTotalParedes + area
+                console.log(`Area ${i} = ${area}mt²`)
+            }
+
+            if(contadorJanelas >0){
+                for(let i=1; i<=contadorJanelas;i++){ 
+                    const base = parseFloat(document.querySelector(`#basej-${i}`).value)
+                    const altura = parseFloat(document.querySelector(`#alturaj-${i}`).value)
+                    const area = base*altura
+                    areaTotalJanelas = areaTotalJanelas + area
+                    console.log(`Area Janelas ${i} = ${area}mt²`)
+                }
+            }
+            areaTotalGeral = areaTotalParedes - areaTotalJanelas
+
+
+            const areaPlacaEmCm = area1placa * area2placa;
+            const areaParedeEmCm = areaTotalGeral * 10000;
+            const qtdAproximada = areaParedeEmCm / areaPlacaEmCm;
+            const qtdArredondada = Math.ceil(qtdAproximada.toFixed(2))
+    
+            if (!!qtdAproximada) {
+                resultado.innerHTML = `A quantidade aproximada de placas é ${qtdArredondada}<br> O valor estimado de venda é R$ ${(qtdArredondada*valorPc).toFixed(2)}<br > valor estimado do m² instalado é R$ ${(areaTotalGeral*valorMt).toFixed(2)}`;
+            } else {
+                resultado.innerHTML =
+                "Confira os valores se estão preenchidos corretamente.";
+                console.log(area1parede);
+            }
+                console.log(`Area Total ${areaTotalParedes}`)
+        }
+
+
+
+    </script>
+  </body>
+</html>
